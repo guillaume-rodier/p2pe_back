@@ -60,3 +60,7 @@ And then you need to start the server with:
 ```
 node index.js (You can also use nodemon in order to use the hot reload)
 ```
+Incoming:
+    -   Docker-compose for the entire stack 
+    -   Code base guidelines
+    -   Database sample data + integration guide.

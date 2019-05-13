@@ -7,6 +7,38 @@ const pool = new Pool({
   port: 5432,
 })
 
+//
+
+const createTables = (request, response) => {
+  pool.query('CREATE TABLE IF NOT EXISTS users(userId SERIAL, birthday TIME, gender VARCHAR, address VARCHAR, email VARCHAR, phoneNumber VARCHAR, firstName VARCHAR, lastName VARCHAR, role VARCHAR, companyName VARCHAR, siret VARCHAR, companyDescription VARCHAR, numberOfEmployee INT, state VARCHAR, profession VARCHAR, UNIQUE(userId, phoneNumber, email, companyName, siret), PRIMARY KEY (userId))', (error, results) => {
+    if (error) {
+        console.log('Cannot create tables users : ' + error.message) 
+      }
+    console.log(results)
+  })
+  pool.query('CREATE TABLE IF NOT EXISTS proposed_services(serviceId SERIAL, name VARCHAR, description VARCHAR, location VARCHAR, price FLOAT, creationDate TIME, state VARCHAR, rate FLOAT, option VARCHAR, proId SERIAL, PRIMARY KEY (serviceId), FOREIGN KEY (proId) REFERENCES users(userId))', (error, results) => {
+    if (error) {
+        console.log('Cannot create tables proposed_services : ' + error.message) 
+      }
+    console.log(results)
+  })
+  pool.query('CREATE TABLE IF NOT EXISTS requested_services(requestId SERIAL, state VARCHAR, paid VARCHAR, serviceDate TIME, address VARCHAR, expirationDate TIME, customerId SERIAL, serviceId SERIAL, PRIMARY KEY (requestId), FOREIGN KEY (customerId) REFERENCES users(userId), FOREIGN KEY (serviceId) REFERENCES proposed_services(serviceId))', (error, results) => {
+    if (error) {
+        console.log('Cannot create tables requested_services : ' + error.message) 
+      }
+    console.log(results)
+  })
+}
+
+const dropTables = (request, response) => {
+  pool.query('DROP TABLE IF EXISTS users', (error, results) => {
+    if (error) {
+        console.log('cannot drop tables : ' + error.message ) 
+      }
+    console.log(results)
+  })
+}
+
 const getUsers = (request, response) => {
     pool.query('SELECT * FROM users', (error, results) => {
       if (error) {
@@ -71,4 +103,6 @@ const deleteUser = (request, response) => {
     createUser,
     updateUser,
     deleteUser,
+    dropTables,
+    createTables,
    }

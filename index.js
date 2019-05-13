@@ -22,6 +22,7 @@ bcrypt.compare(myPlaintextPassword, hash, function(err, res) {
   // res == true
 });
  */
+
 //jwt stuff
 const secret = config.secret//normally stored in process.env.secret
 const jwt = require("jsonwebtoken");
@@ -46,13 +47,13 @@ app.get('/', (request, response) => {
 })
 
 
-
+app.get(db.createTables);
+app.get(db.dropTables);
 app.get('/users', passport.authenticate('jwt', { session: false }),db.getUsers) //TODO: Find a fancier way to secure the routes (maybe with a express router)
 app.get('/users/:id', db.getUserById)
 app.post('/users', db.createUser)
 app.put('/users/:id', db.updateUser)
 app.delete('/users/:id', db.deleteUser)
-
 
 app.post("/login", (req, res) => {
   let { email, password } = req.body;
@@ -73,8 +74,13 @@ app.post("/login", (req, res) => {
 app.get("/protected", passport.authenticate('jwt', { session: false }), (req, res) => {
   return res.status(200).send("YAY! this is a protected Route")
 })
+
 app.listen(3000, () => {
   console.log(`App running on port ${port}.`)
+
+  //db.dropTables();
+
+  db.createTables();
 })
 
 

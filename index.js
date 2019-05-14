@@ -5,6 +5,15 @@ const users = require('./users')
 const app = express()
 const port = 3000
 
+const pool = require('./db').pool
+pool.query('SELECT NOW()', (err, res) => {
+  if (!err) {
+  console.log("Postgres up and running")
+  } else {
+    pool.end()
+    throw err
+  }
+})
 //TODO: Externalize all the config stuff into config.js (port, DB and so on...).
 /* //Bycrypt
 const bcrypt = require('bcrypt');
@@ -51,7 +60,7 @@ app.get('/users', passport.authenticate('jwt', { session: false }),users.getUser
 app.get('/users/:id', users.getUserById)
 app.post('/users', users.createUser)
 app.put('/users/:id', users.updateUser)
-app.delete('/users/:id', users.deleteUser)
+app.delete('/users/:id', users.deleteUser)   
 
 
 app.post("/login", (req, res) => {

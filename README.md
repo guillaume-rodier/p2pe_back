@@ -60,7 +60,13 @@ And then you need to start the server with:
 ```
 node index.js (You can also use nodemon in order to use the hot reload)
 ```
+### `docker-compose:`
+ 
+Run docker-compose up in the P2PE_Back folder
+
+Check the host value in config.js to postgres
+
 Incoming:
-    -   Docker-compose for the entire stack 
+    -   Docker-compose for the entire stack: done 
     -   Code base guidelines
     -   Database sample data + integration guide.

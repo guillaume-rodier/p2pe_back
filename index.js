@@ -1,4 +1,5 @@
 const config = require('./config')
+const db = require('./db')
 const express = require('express')
 const bodyParser = require('body-parser')
 const users = require('./users')
@@ -41,7 +42,7 @@ const passport = require("passport");
 const jwtStrategry  = require("./strategies/jwt")
 passport.use(jwtStrategry);
 
-
+db.createTables()
 
 app.use(bodyParser.json())
 app.use(
@@ -62,10 +63,10 @@ app.post('/users', users.createUser)
 app.put('/users/:id', users.updateUser)
 app.delete('/users/:id', users.deleteUser)   
 
-
 app.post("/login", (req, res) => {
   let { email, password } = req.body;
   //This lookup would normally be done using a database
+  
   if (email === "aa") {
       if (password === "aaa") { //Change the verification mechanism-> DB TODO: Check Bycrpt pour stocquer un hash et les comparer
           opts.expiresIn = '24h';  //token expires in 2min

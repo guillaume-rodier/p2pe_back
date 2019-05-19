@@ -1,20 +1,23 @@
-const config = require('./config')
-const db = require('./db')
-const express = require('express')
-const bodyParser = require('body-parser')
-const users = require('./users')
-const app = express()
-const port = 3000
+const config = require("./config");
+const db = require("./db");
+const proposed_services = require('./proposed_services')
+const express = require("express");
+const bodyParser = require("body-parser");
+const users = require("./users");
+const cors = require("cors");
+const app = express();
+const port = 3000;
 
-const pool = require('./db').pool
-pool.query('SELECT NOW()', (err, res) => {
-  if (!err) {
-  console.log("Postgres up and running")
-  } else {
-    pool.end()
-    throw err
+app.use(cors());
+
+const pool = require("./db").pool;
+
+pool.query("SELECT NOW()", (err, res) => {
+  if (err) {
+    console.log("Could not connect to the database");
+    app.close();
   }
-})
+});
 //TODO: Externalize all the config stuff into config.js (port, DB and so on...).
 /* //Bycrypt
 const bcrypt = require('bcrypt');
@@ -33,59 +36,71 @@ bcrypt.compare(myPlaintextPassword, hash, function(err, res) {
 });
  */
 //jwt stuff
-const secret = config.secret//normally stored in process.env.secret
+const secret = config.secret; //normally stored in process.env.secret
 const jwt = require("jsonwebtoken");
-const opts = {}
+const opts = {};
 
 //passport stuff
 const passport = require("passport");
-const jwtStrategry  = require("./strategies/jwt")
+const jwtStrategry = require("./strategies/jwt");
 passport.use(jwtStrategry);
 
-db.createTables()
+db.createTables();
 
-app.use(bodyParser.json())
+app.use(bodyParser.json());
 app.use(
   bodyParser.urlencoded({
-    extended: true,
+    extended: true
   })
-)
+);
 
-app.get('/', (request, response) => {
-  response.json({ info: 'Node.js, Express, and Postgres API' })
-})
+app.get("/", (request, response) => {
+  response.json({ info: "Node.js, Express, and Postgres API" });
+});
+
+app.get(
+  "/users",
+  passport.authenticate("jwt", { session: false }),
+  users.getUsers
+); //TODO: Find a fancier way to secure the routes (maybe with a express router)
 
 
+app.get("/users/:id", users.getUserById);
+app.post("/users", users.createUser);
+app.put("/users/:id", users.updateUser);
+app.delete("/users/:id", users.deleteUser);
 
-app.get('/users', passport.authenticate('jwt', { session: false }),users.getUsers) //TODO: Find a fancier way to secure the routes (maybe with a express router)
-app.get('/users/:id', users.getUserById)
-app.post('/users', users.createUser)
-app.put('/users/:id', users.updateUser)
-app.delete('/users/:id', users.deleteUser)   
+
+app.post("/proposed_services", proposed_services.createProposed)
+app.get("/proposed_services", proposed_services.getAllProposed)
+app.delete("/proposed_services/:id", proposed_services.deleteProposed)
+
 
 app.post("/login", (req, res) => {
   let { email, password } = req.body;
   //This lookup would normally be done using a database
-  
+
   if (email === "aa") {
-      if (password === "aaa") { //Change the verification mechanism-> DB TODO: Check Bycrpt pour stocquer un hash et les comparer
-          opts.expiresIn = '24h';  //token expires in 2min
-          const token = jwt.sign({ email, password }, secret, opts);
-          return res.status(200).json({
-              message: "Auth Passed",
-              token
-          })
-      }
+    if (password === "aaa") {
+      //Change the verification mechanism-> DB TODO: Check Bycrpt pour stocquer un hash et les comparer
+      opts.expiresIn = "24h"; //token expires in 2min
+      const token = jwt.sign({ email, password }, secret, opts);
+      return res.status(200).json({
+        message: "Auth Passed",
+        token
+      });
+    }
   }
-  return res.status(401).json({ message: "Auth Failed" })
+  return res.status(401).json({ message: "Auth Failed" });
 });
 
-app.get("/protected", passport.authenticate('jwt', { session: false }), (req, res) => {
-  return res.status(200).send("YAY! this is a protected Route")
-})
+app.get(
+  "/protected",
+  passport.authenticate("jwt", { session: false }),
+  (req, res) => {
+    return res.status(200).send("YAY! this is a protected Route");
+  }
+);
 app.listen(3000, () => {
-  console.log(`App running on port ${port}.`)
-})
-
-
-
+  console.log(`App running on port ${port}.`);
+});

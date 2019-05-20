@@ -80,6 +80,7 @@ const createUser = (request, response) => {
   );
 };
 
+//TODO: Define what can be updated on a user profil
 const updateUser = (request, response) => {
   const id = parseInt(request.params.id);
   const { name, email } = request.body;
@@ -106,6 +107,7 @@ const deleteUser = (request, response) => {
       response.status(400).send("Couldn't delete the user");
     }
     response.status(200).send(`Deleted User with ID: ${id}`);
+    return
   });
 };
 

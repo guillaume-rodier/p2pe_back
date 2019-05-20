@@ -72,7 +72,11 @@ app.delete("/users/:id", users.deleteUser);
 
 
 app.post("/proposed_services", proposed_services.createProposed)
+app.get("/proposed_services/:id", proposed_services.getProposedbyId)
 app.get("/proposed_services", proposed_services.getAllProposed)
+app.put("/proposed_services/:id/state", proposed_services.updateProposedState) //set the service to disabled
+app.put("/pro/:id_pro/proposed_services/state", proposed_services.updateProposedStatePro)//same but for all services with pro id
+app.put("/proposed_services/:id/", proposed_services.updateProposedWithId)
 app.delete("/proposed_services/:id", proposed_services.deleteProposed)
 
 

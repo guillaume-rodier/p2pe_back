@@ -12,12 +12,13 @@ const getAllProposed = (request, response) => {
   });
 };
 
-const getUserById = (request, response) => {
+const getProposedbyId = (request, response) => {
   const id = parseInt(request.params.id);
 
-  pool.query("SELECT * FROM users WHERE id = $1", [id], (error, results) => {
+  pool.query("SELECT * FROM proposed_services WHERE id = $1", [id], (error, results) => {
+    
     if (error || results.rows.length <= 0) {
-      response.status(400).send(`There is no user with the ID: ${id}`);
+      response.status(400).send(`There is no proposed service with the ID: ${id}`);
       return;
     }
     response.status(200).json(results.rows);
@@ -25,6 +26,47 @@ const getUserById = (request, response) => {
   });
 };
 
+//this function modify the proposed service' state
+const updateProposedState = (request, response) => {
+  const state = request.body.state
+  const id = parseInt(request.params.id)
+
+  pool.query("UPDATE proposed_services SET state = $1 WHERE id = $2", [state,id], (error, results) => {
+    if (error) {
+      response.status(400).send(`Something went wrong`)
+    }
+    response.status(200).send(`Status updated for the proposed service with id: ${id}`);
+    return
+  })
+}
+//same but for a specified pro (global action on all proposed services)
+const updateProposedStatePro = (request, response) => {
+  const state = request.body.state
+  const id_pro = parseInt(request.params.id_pro)
+  pool.query("UPDATE proposed_services SET state = $1 WHERE id_pro = $2", [state,id_pro], (error, results) => {
+    if (error) {
+      response.status(400).send(`Something went wrong`)
+    }
+    response.status(200).send(`Status updated for the proposed service of the user with id: ${id_pro}`);
+    return
+  })
+}
+
+const updateProposedWithId = (req, res) => {
+  const id = req.params.id
+  const name = req.body.name
+  const description =  req.body.description
+  const price = parseFloat(req.body.price)
+
+  pool.query("UPDATE proposed_services SET name = $1, description = $2, price = $3 WHERE id = $4", [name,description, price, id], (error, results) => {
+    if (error) {
+      res.status(400).send(`Something went wrong`)
+    }
+    res.status(200).send(`Updated the proposed service with the id: ${id}`);
+    return
+  })
+
+}
 const createProposed = (request, response) => {
   const {
     name,
@@ -33,7 +75,7 @@ const createProposed = (request, response) => {
     price,
     creation_date, //now()
     state, //1 at creation
-    rate, //0 at initi
+    rate, //0 at init
     option,
     id_pro
   } = request.body;
@@ -97,5 +139,9 @@ const deleteProposed = (request, response) => {
 module.exports = {
   createProposed,
   getAllProposed,
+  getProposedbyId,
   deleteProposed,
+  updateProposedState,
+  updateProposedStatePro,
+  updateProposedWithId,
 };

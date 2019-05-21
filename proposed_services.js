@@ -1,24 +1,40 @@
 const pool = require("./db").pool;
 
 const getAllProposed = (request, response) => {
-  pool.query("SELECT * FROM proposed_services", (error, results) => {
+  pool.query("SELECT * FROM proposed_services where state = '1'", (error, results) => {
     if (error) {
       response.status(400).send("Couldn't get the proposed_services");
       return;
     }
     if (typeof results !== "undefined" && results.rows.length > 0) {
       response.status(200).json(results.rows);
+    } else {
+      response.status(400).send("Couldn't get the proposed_services");
+      return;
     }
   });
 };
-
-const getProposedbyId = (request, response) => {
+const getProposedById = (request, response) => {
   const id = parseInt(request.params.id);
 
   pool.query("SELECT * FROM proposed_services WHERE id = $1", [id], (error, results) => {
     
     if (error || results.rows.length <= 0) {
       response.status(400).send(`There is no proposed service with the ID: ${id}`);
+      return;
+    }
+    response.status(200).json(results.rows);
+    return;
+  });
+};
+const getProProposed = (request, response) => {
+  const id_pro = request.params.id_pro
+  //parseInt(request.params.id);
+
+  pool.query("SELECT * FROM proposed_services WHERE id_pro = $1", [id_pro], (error, results) => {
+    
+    if (error || results.rows.length <= 0) {
+      response.status(400).send(`There is no proposed service with the ID: ${id_pro}`);
       return;
     }
     response.status(200).json(results.rows);
@@ -47,7 +63,7 @@ const updateProposedStatePro = (request, response) => {
     if (error) {
       response.status(400).send(`Something went wrong`)
     }
-    response.status(200).send(`Status updated for the proposed service of the user with id: ${id_pro}`);
+    response.status(200).send(`Status updated for the proposed service of the pro with id: ${id_pro}.`);
     return
   })
 }
@@ -62,7 +78,7 @@ const updateProposedWithId = (req, res) => {
     if (error) {
       res.status(400).send(`Something went wrong`)
     }
-    res.status(200).send(`Updated the proposed service with the id: ${id}`);
+    res.status(200).send(`Updated the proposed service with the id: ${id}.`);
     return
   })
 
@@ -107,24 +123,6 @@ const createProposed = (request, response) => {
   );
 };
 
-const updateUser = (request, response) => {
-  const id = parseInt(request.params.id);
-  const { name, email } = request.body;
-
-  pool.query(
-    "UPDATE users SET name = $1, email = $2 WHERE id = $3",
-    [name, email, id],
-    (error, results) => {
-      if (error) {
-        response.status(400).send(`Couldn't update the user with ID: ${id}`);
-        return;
-      }
-      response.status(200).send(`Service  deleted with ID: ${id}`);
-      return;
-    }
-  );
-};
-
 const deleteProposed = (request, response) => {
   const id = parseInt(request.params.id);
 
@@ -139,8 +137,9 @@ const deleteProposed = (request, response) => {
 module.exports = {
   createProposed,
   getAllProposed,
-  getProposedbyId,
+  getProProposed,
   deleteProposed,
+  getProposedById,
   updateProposedState,
   updateProposedStatePro,
   updateProposedWithId,

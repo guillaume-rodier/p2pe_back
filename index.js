@@ -1,9 +1,11 @@
 const config = require("./config");
 const db = require("./db");
-const proposed_services = require('./proposed_services')
 const express = require("express");
 const bodyParser = require("body-parser");
 const users = require("./users");
+const proposed_services = require('./proposed_services')
+const requested_services = require('./requested_services')
+
 const cors = require("cors");
 const app = express();
 const port = 3000;
@@ -65,21 +67,29 @@ app.get(
 ); //TODO: Find a fancier way to secure the routes (maybe with a express router)
 
 
-app.get("/users/:id", users.getUserById);
-app.post("/users", users.createUser);
-app.put("/users/:id", users.updateUser);
-app.delete("/users/:id", users.deleteUser);
+app.get("/users/:id",passport.authenticate("jwt", { session: false }), users.getUserById);
+app.put("/users/:id", passport.authenticate("jwt", { session: false }),users.updateUser);
+app.delete("/users/:id",passport.authenticate("jwt", { session: false }), users.deleteUser);
+
+//PROPOSED SERVICES
+app.post("/proposed_services", passport.authenticate("jwt", { session: false }),proposed_services.createProposed)
+app.get("/proposed_services", passport.authenticate("jwt", { session: false }),proposed_services.getAllProposed)
+app.put("/proposed_services/:id/state",passport.authenticate("jwt", { session: false }), proposed_services.updateProposedState) //set the service to disabled
+app.put("/proposed_services/:id/",passport.authenticate("jwt", { session: false }), proposed_services.updateProposedWithId)
+app.delete("/proposed_services/:id", passport.authenticate("jwt", { session: false }),proposed_services.deleteProposed)
+app.get("/proposed_services/:id", passport.authenticate("jwt", { session: false }),proposed_services.getProposedById)
+
+//PRO
+app.get("/pro/:id_pro/proposed_services", passport.authenticate("jwt", { session: false }),proposed_services.getProProposed)
+app.put("/pro/:id_pro/proposed_services/state", passport.authenticate("jwt", { session: false }),proposed_services.updateProposedStatePro)//same but for all services with pro id
 
 
-app.post("/proposed_services", proposed_services.createProposed)
-app.get("/proposed_services/:id", proposed_services.getProposedbyId)
-app.get("/proposed_services", proposed_services.getAllProposed)
-app.put("/proposed_services/:id/state", proposed_services.updateProposedState) //set the service to disabled
-app.put("/pro/:id_pro/proposed_services/state", proposed_services.updateProposedStatePro)//same but for all services with pro id
-app.put("/proposed_services/:id/", proposed_services.updateProposedWithId)
-app.delete("/proposed_services/:id", proposed_services.deleteProposed)
+//Requested SERVICES
 
+app.post("/requested_services/", passport.authenticate("jwt", { session: false }),requested_services.createRequested)//same but for all services with pro id
 
+//login/register handler must be public
+app.post("/users",users.createUser);
 app.post("/login", (req, res) => {
   let { email, password } = req.body;
   //This lookup would normally be done using a database

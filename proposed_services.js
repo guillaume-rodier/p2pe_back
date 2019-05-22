@@ -1,4 +1,4 @@
-const pool = require("./db").pool;
+const pool = require("./db").pool
 
 const getAllProposed = (request, response) => {
   pool.query("SELECT * FROM proposed_services where state = '1'", (error, results) => {

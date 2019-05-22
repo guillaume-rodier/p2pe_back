@@ -1,5 +1,7 @@
 const config = require("./config");
 const db = require("./db");
+const pool = require("./db").pool;
+
 const express = require("express");
 const bodyParser = require("body-parser");
 const users = require("./users");
@@ -12,11 +14,11 @@ const port = 3000;
 
 app.use(cors());
 
-const pool = require("./db").pool;
 
 pool.query("SELECT NOW()", (err, res) => {
   if (err) {
     console.log("Could not connect to the database");
+    pool.end()
     app.close();
   }
 });

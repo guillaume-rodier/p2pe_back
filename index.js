@@ -1,3 +1,5 @@
+const Crypt = require ('./strategies/Crypt');
+const pool = require('./db').pool
 const config = require('./config')
 const express = require('express')
 const bodyParser = require('body-parser')
@@ -49,26 +51,56 @@ app.get('/', (request, response) => {
 
 app.get('/users', passport.authenticate('jwt', { session: false }),users.getUsers) //TODO: Find a fancier way to secure the routes (maybe with a express router)
 app.get('/users/:id', users.getUserById)
+app.get('/users/:email', users.getUserByEmail)
 app.post('/users', users.createUser)
 app.put('/users/:id', users.updateUser)
 app.delete('/users/:id', users.deleteUser)
 
 
-app.post("/login", (req, res) => {
-  let { email, password } = req.body;
-  //This lookup would normally be done using a database
-  if (email === "aa") {
-      if (password === "aaa") { //Change the verification mechanism-> DB TODO: Check Bycrpt pour stocquer un hash et les comparer
-          opts.expiresIn = '24h';  //token expires in 2min
-          const token = jwt.sign({ email, password }, secret, opts);
-          return res.status(200).json({
-              message: "Auth Passed",
-              token
-          })
+app.post("/login", (request, response) => {
+    //Test if data are conform
+    if (!request.body.email || !request.body.password) {
+      return response.status(400).json({message: "Some values are missing"});
+    }
+    if (!Crypt.isValidEmail(request.body.email)) {
+      return response.status(400).json({message: "The credentials you provided is incorrect: Please enter a valid email address"});
       }
-  }
-  return res.status(401).json({ message: "Auth Failed" })
+
+    //Find account linked to this email
+    const text = "SELECT * FROM users WHERE email = $1";
+      pool.query(text, [request.body.email])
+        //email linked
+        .then((res) => {
+            const current_user = res.rows[0];
+            if(!Crypt.comparePassword(current_user.password, request.body.password)) {
+              return response.status(400).json({message: "The credentials you provided is incorrect: password incorrect"});
+            } else {
+              //console.log(process.env.SECRET);
+              const token = Crypt.generateToken(current_user.id);
+              return response.status(200).json({
+                message: "Connected!",
+                token
+              });
+            }
+        })
+        //Email does not match
+        .catch((err) => {
+            return response.status(400).json({message: "This email does not refer to any account"});
+        });
 });
+
+//???? Verifie letoken delivre a la connexion
+app.post("/_login", (request, response) => {
+  try {
+    const userId = Crypt.verifyToken(request.body.token);
+    return response.status(200).json({
+      message: "Authification secure OK!",
+      userId
+      })
+  } catch(err) {
+    return response.status(400).json({message: err});
+  }
+})
 
 app.get("/protected", passport.authenticate('jwt', { session: false }), (req, res) => {
   return res.status(200).send("YAY! this is a protected Route")

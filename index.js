@@ -1,16 +1,15 @@
-const config = require("./config");
 const db = require("./db");
-const pool = require("./db").pool;
-
-const express = require("express");
-const bodyParser = require("body-parser");
-const users = require("./users");
+const Crypt = require ('./strategies/Crypt');
+const pool = require('./db').pool
+const config = require('./config')
+const express = require('express')
+const bodyParser = require('body-parser')
+const users = require('./users')
 const proposed_services = require('./proposed_services')
 const requested_services = require('./requested_services')
-
+const app = express()
 const cors = require("cors");
-const app = express();
-const port = 3000;
+const port = 3000
 
 app.use(cors());
 
@@ -64,59 +63,82 @@ app.get("/", (request, response) => {
 
 app.get(
   "/users",
-  passport.authenticate("jwt", { session: false }),
+  Crypt.verifyToken,
   users.getUsers
-); //TODO: Find a fancier way to secure the routes (maybe with a express router)
+);
 
-
-app.get("/users/:id",passport.authenticate("jwt", { session: false }), users.getUserById);
-app.put("/users/:id", passport.authenticate("jwt", { session: false }),users.updateUser);
-app.delete("/users/:id",passport.authenticate("jwt", { session: false }), users.deleteUser);
+app.get("/users/:id",Crypt.verifyToken, users.getUserById);
+app.put("/users/:id", Crypt.verifyToken, users.updateUser);
+app.delete("/users/:id", Crypt.verifyToken, users.deleteUser);
+app.post('/users', users.createUser)
 
 //PROPOSED SERVICES
-app.post("/proposed_services", passport.authenticate("jwt", { session: false }),proposed_services.createProposed)
-app.get("/proposed_services", passport.authenticate("jwt", { session: false }),proposed_services.getAllProposed)
-app.put("/proposed_services/:id/state",passport.authenticate("jwt", { session: false }), proposed_services.updateProposedState) //set the service to disabled
-app.put("/proposed_services/:id/",passport.authenticate("jwt", { session: false }), proposed_services.updateProposedWithId)
-app.delete("/proposed_services/:id", passport.authenticate("jwt", { session: false }),proposed_services.deleteProposed)
-app.get("/proposed_services/:id", passport.authenticate("jwt", { session: false }),proposed_services.getProposedById)
+app.post("/proposed_services", Crypt.verifyToken, proposed_services.createProposed)
+app.get("/proposed_services", Crypt.verifyToken, proposed_services.getAllProposed)
+app.put("/proposed_services/:id/state", Crypt.verifyToken, proposed_services.updateProposedState) //set the service to disabled
+app.put("/proposed_services/:id/", Crypt.verifyToken, proposed_services.updateProposedWithId)
+app.delete("/proposed_services/:id", Crypt.verifyToken, proposed_services.deleteProposed)
+app.get("/proposed_services/:id", Crypt.verifyToken, proposed_services.getProposedById)
 
 //PRO
-app.get("/pro/:id_pro/proposed_services", passport.authenticate("jwt", { session: false }),proposed_services.getProProposed)
-app.put("/pro/:id_pro/proposed_services/state", passport.authenticate("jwt", { session: false }),proposed_services.updateProposedStatePro)//same but for all services with pro id
+app.get("/pro/:id_pro/proposed_services", Crypt.verifyToken, proposed_services.getProProposed)
+app.put("/pro/:id_pro/proposed_services/state", Crypt.verifyToken, proposed_services.updateProposedStatePro)//same but for all services with pro id
 
 
-//Requested SERVICES
+//REQUESTED SERVICES
+app.post("/requested_services/", Crypt.verifyToken, requested_services.createRequested)//same but for all services with pro id
 
-app.post("/requested_services/", passport.authenticate("jwt", { session: false }),requested_services.createRequested)//same but for all services with pro id
 
-//login/register handler must be public
-app.post("/users",users.createUser);
-app.post("/login", (req, res) => {
-  let { email, password } = req.body;
-  //This lookup would normally be done using a database
-
-  if (email === "aa") {
-    if (password === "aaa") {
-      //Change the verification mechanism-> DB TODO: Check Bycrpt pour stocquer un hash et les comparer
-      opts.expiresIn = "24h"; //token expires in 2min
-      const token = jwt.sign({ email, password }, secret, opts);
-      return res.status(200).json({
-        message: "Auth Passed",
-        token
-      });
+//LOGIN
+app.post("/login", (request, response) => {
+    //Test if data are conform
+    if (!request.body.email || !request.body.password) {
+      return response.status(400).json({message: "Some values are missing"});
     }
-  }
-  return res.status(401).json({ message: "Auth Failed" });
+    if (!Crypt.isValidEmail(request.body.email)) {
+      return response.status(400).json({message: "The credentials you provided is incorrect: Please enter a valid email address"});
+      }
+
+    //Find account linked to this email
+    const text = "SELECT * FROM users WHERE email = $1";
+      pool.query(text, [request.body.email])
+        //email linked
+        .then((res) => {
+            const current_user = res.rows[0];
+            if(!Crypt.comparePassword(current_user.password, request.body.password)) {
+              return response.status(400).json({message: "The credentials you provided is incorrect: password incorrect"});
+            } else {
+              //console.log(process.env.SECRET);
+              const token = Crypt.generateToken(current_user.id);
+              return response.status(200).json({
+                message: "Connected!",
+                token
+              });
+            }
+        })
+        //Email does not match
+        .catch((err) => {
+            return response.status(400).json({message: "This email does not refer to any account"});
+        });
 });
 
-app.get(
-  "/protected",
-  passport.authenticate("jwt", { session: false }),
-  (req, res) => {
-    return res.status(200).send("YAY! this is a protected Route");
+//???? Verifie letoken delivre a la connexion
+app.post("/_login", (request, response) => {
+  try {
+    const userId = Crypt.verifyToken(request.body.token);
+    return response.status(200).json({
+      message: "Authification secure OK!",
+      userId
+      })
+  } catch(err) {
+    return response.status(400).json({message: err});
   }
-);
+})
+
+app.get("/protected", passport.authenticate('jwt', { session: false }), (req, res) => {
+  return res.status(200).send("YAY! this is a protected Route")
+})
+
 app.listen(3000, () => {
   console.log(`App running on port ${port}.`);
 });

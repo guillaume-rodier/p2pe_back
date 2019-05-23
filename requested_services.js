@@ -1,6 +1,6 @@
 const pool = require("./db").pool;
 
-const getAllProposed = (request, response) => {
+const getProRequested = (request, response) => { //7TODO: Creation des routes pour les request (ici requested pour un pro jointure sur 3 table)
   pool.query("SELECT * FROM proposed_services", (error, results) => {
     if (error) {
       response.status(400).send("Couldn't get the proposed_services");

@@ -79,6 +79,7 @@ app.post("/login", (request, response) => {
               const token = Crypt.generateToken(current_user.id);
               return response.status(200).json({
                 message: "Connected!",
+                id_user: current_user.id, //FIX: j'ai ajouté l'id user dans le retour du login (pour que le front sache qui il est!)
                 token
               });
             }

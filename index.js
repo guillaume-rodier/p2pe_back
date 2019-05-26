@@ -109,7 +109,7 @@ app.post("/login", (request, response) => {
               return response.status(400).json({message: "The credentials you provided is incorrect: password incorrect"});
             } else {
               //console.log(process.env.SECRET);
-              const token = Crypt.generateToken(current_user.id);
+              const token = Crypt.generateToken(current_user.id, current_user.email, current_user.role);
               return response.status(200).json({
                 message: "Connected!",
                 token
@@ -125,7 +125,7 @@ app.post("/login", (request, response) => {
 //???? Verifie letoken delivre a la connexion
 app.post("/_login", (request, response) => {
   try {
-    const userId = Crypt.verifyToken(request.body.token);
+    const userId = Crypt._verifyToken(request.body.token);
     return response.status(200).json({
       message: "Authification secure OK!",
       userId

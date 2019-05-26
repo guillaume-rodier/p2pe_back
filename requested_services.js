@@ -98,14 +98,17 @@ const createRequested = (request, response) => {
   );
 };
 
-const deleteProposed = (request, response) => {
-  const id = parseInt(request.params.id);
+const deleteRequested = (request, response) => {
+  const id = request.params.id;
 
-  pool.query("DELETE FROM proposed_services WHERE id = $1", [id], (error, results) => {
+  pool.query("DELETE from requested_services WHERE id = $1", [id], (error, results) => {
     if (error) {
+      console.log(error)
       response.status(400).send("Couldn't delete the service");
+      return
     }
-    response.status(200).send(`Proposed Service deleted with ID: ${id}`);
+    response.status(200).send(`Requested_services with ID: ${id} deleted`);
+    return
   });
 };
 
@@ -113,4 +116,5 @@ module.exports = {
     createRequested,
     updateRequestedStateForPro,
     updatePaid,
+    deleteRequested,
 };

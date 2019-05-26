@@ -61,6 +61,8 @@ app.put("/pro/:id_pro/proposed_services/state", Crypt.verifyToken, proposed_serv
 
 //REQUESTED SERVICES
 app.post("/requested_services/", Crypt.verifyToken, requested_services.createRequested)//same but for all services with pro id
+app.put("/requested_services/:id/state", Crypt.verifyToken, requested_services.updateRequestedStateForPro)
+app.put("/requested_services/:id/paid", Crypt.verifyToken, requested_services.updatePaid)
 
 
 //LOGIN

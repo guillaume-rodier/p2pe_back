@@ -41,44 +41,28 @@ const getProProposed = (request, response) => {
     return;
   });
 };
-
-//this function modify the proposed service' state
-const updateProposedState = (request, response) => {
+const updateRequestedStateForPro = (request, response) => {
   const state = request.body.state
-  const id = parseInt(request.params.id)
-
-  pool.query("UPDATE proposed_services SET state = $1 WHERE id = $2", [state,id], (error, results) => {
+  const id = request.params.id
+  pool.query("UPDATE requested_services SET state = $1 WHERE id = $2", [state,id], (error, results) => {
     if (error) {
-      response.status(400).send(`Something went wrong`)
+      response.status(400).send(`Couldn't update the requested_service`)
     }
-    response.status(200).send(`Status updated for the proposed service with id: ${id}`);
-    return
-  })
-}
-//same but for a specified pro (global action on all proposed services)
-const updateProposedStatePro = (request, response) => {
-  const state = request.body.state
-  const id_pro = parseInt(request.params.id_pro)
-  pool.query("UPDATE proposed_services SET state = $1 WHERE id_pro = $2", [state,id_pro], (error, results) => {
-    if (error) {
-      response.status(400).send(`Something went wrong`)
-    }
-    response.status(200).send(`Status updated for the proposed service of the pro with id: ${id_pro}.`);
+    response.status(200).send(`Status updated for the requested service  with id: ${id}.`);
     return
   })
 }
 
-const updateProposedWithId = (req, res) => {
+const updatePaid = (req, res) => {
   const id = req.params.id
-  const name = req.body.name
-  const description =  req.body.description
-  const price = parseFloat(req.body.price)
-
-  pool.query("UPDATE proposed_services SET name = $1, description = $2, price = $3 WHERE id = $4", [name,description, price, id], (error, results) => {
+  const paid = req.body.paid
+  pool.query("UPDATE requested_services SET paid = $1 WHERE id = $2", [paid, id], (error, results) => {
     if (error) {
-      res.status(400).send(`Something went wrong`)
+      res.status(400).send(`Couldn't update the requested service`)
+      console.log(error)
+      return
     }
-    res.status(200).send(`Updated the proposed service with the id: ${id}.`);
+    res.status(200).send(`Updated the requested paid field with the id: ${id}.`);
     return
   })
 
@@ -91,7 +75,7 @@ const createRequested = (request, response) => {
   } = request.body;
 
   pool.query(
-    "INSERT INTO requested_services VALUES (DEFAULT, '1', '0', now() , $1, now() + INTERVAL '1 DAYS',$2, $3) returning id",
+    "INSERT INTO requested_services VALUES (DEFAULT, 'Pending', '0', now() , $1, now() + INTERVAL '1 DAYS',$2, $3) returning id",
     [
         address,
         id_user,
@@ -127,4 +111,6 @@ const deleteProposed = (request, response) => {
 
 module.exports = {
     createRequested,
+    updateRequestedStateForPro,
+    updatePaid,
 };

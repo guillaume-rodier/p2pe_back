@@ -11,7 +11,8 @@ get\
 __Create new user__
 
 post \
-users \	
+users \
+
 body: {
   email \
   password \

@@ -26,28 +26,28 @@ body: {
   profession
 }
 
-__Update a user (still has to define what needs to be *updatable* for now email, name and password ?)
+__Update a user (still has to define what needs to be *updatable* for now email, name and password ?)__
 put 
 /users/:id		
 
-__Delete the specified user
+__Delete the specified user__
 delet
 /users/:id	
 
-##PROPOSED SERVICES:
-__Create new service proposal
+## PROPOSED SERVICES:
+__Create new service proposal__
 post 
 /proposed_services	
 body: {
 	name
-description
-location
-price
-option
-id_pro
+	description
+	location
+	price
+	option
+	id_pro
 }
 
-__get all the proposed services
+__get all the proposed services__
 get 
 /proposed_services	
 
@@ -84,7 +84,7 @@ put
 
 
 
-##Requested:
+## Requested:
 __Create request:__
 POST : 
 /requested_services
@@ -114,7 +114,7 @@ __GET POUR PRO :__
 /pro/:id/requested_services/extend
 /pro/:id/requested_services/
 
-##USER :
+## USER :
 
 __GET requested_services__
 /users/:id/requested_services/extend

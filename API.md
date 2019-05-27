@@ -1,8 +1,8 @@
 
 
-#API routing P2PE 
+# API routing P2PE 
 
-##USERS:
+## USERS:
 
 get /users/:id		//Get user with id
 
@@ -56,7 +56,7 @@ body: {
 	state
 }
 
-__update the specified proposed service
+__update the specified proposed service__
 put 
 /proposed_services/:id/	
 body: {
@@ -65,22 +65,27 @@ description
 price
 }
 
-__Deletes the specified proposed service
+__Deletes the specified proposed service__
 delete
 /proposed_services/:id		
 
-get /proposed_services/:id		//Get the specified proposed service
- state
+get 
+__Get the specified proposed service/proposed_services/:id__
+ 
 
 ##PRO:
+__Get all the proposed services of the specified pro__
+get 
+/pro/:id_pro/proposed_services	
 
-get /pro/:id_pro/proposed_services	//Get all the proposed services of the specified pro
+__Update the state for every services proposed by a specific Pro__
+put
+/pro/:id_pro/proposed_services/state	
 
-put /pro/:id_pro/proposed_services/state	//Update the state for every services proposed by a specific Pro
 
 
 ##Requested:
-__Create request:
+__Create request:__
 POST : 
 /requested_services
 
@@ -90,27 +95,27 @@ address,
 id_user,
 id_proposed
 }
-__Update state  requested :
+__Update state  requested :__
 requested_services/:id/state
 PUT
 body : { state }
  
-__UPDATE PAID :
+__UPDATE PAID :__
 PUT
 /requested_services/:id/paid
 body : {
 state
 }
 
-__DELETE
+__DELETE__
 /requested_services/:id
 
-__GET POUR PRO :
+__GET POUR PRO :__
 /pro/:id/requested_services/extend
 /pro/:id/requested_services/
 
 ##USER :
 
-__GET requested_services
+__GET requested_services__
 /users/:id/requested_services/extend
 /users/:id/requested_services

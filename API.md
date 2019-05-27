@@ -29,6 +29,7 @@ body: { \
 }
 
 __Update a user (still has to define what needs to be *updatable* for now email, name and password ?)__
+\
 put \
 /users/:id \		
 

@@ -65,12 +65,12 @@ body: {
 
 __update the specified proposed service__
 
-put 
+put\
 /proposed_services/:id\
 body: { 
-name \
-description \
-price \
+name\
+description\
+price\
 }
 
 __Deletes the specified proposed service__
@@ -81,14 +81,14 @@ delete\
 
 __Get the specified proposed service__
 
-/proposed_services/:id\
+/proposed_services/:id
  
 
 ## PRO:
 __Get all the proposed services of the specified pro__
 get\
 
-/pro/:id_pro/proposed_services\
+/pro/:id_pro/proposed_services
 
 __Update the state for every services proposed by a specific Pro__
 put\
@@ -101,15 +101,15 @@ __Create request:__
 POST :\
 /requested_services\
  
-body :
-{
+body :\
+{\
 address,\
 id_user, \
 id_proposed \
 }
 __Update state requested :__
-
-requested_services/:id/state \
+\
+requested_services/:id/state\
 PUT \
 body : { state }
  
@@ -118,18 +118,19 @@ __UPDATE PAID :__
 PUT \
 /requested_services/:id/paid\
 body : {
-state
+state\
 }
 
 __DELETE__
-/requested_services/:id
+/requested_services/:id\
 
 __GET POUR PRO :__
 /pro/:id/requested_services/extend\
-/pro/:id/requested_services/
+/pro/:id/requested_services
 
 ## USER :
 
 __GET requested_services__
+\
 /users/:id/requested_services/extend\
 /users/:id/requested_services

@@ -1,25 +1,44 @@
 const pool = require("./db").pool;
 
-const getProRequested = (request, response) => { //7TODO: Creation des routes pour les request (ici requested pour un pro jointure sur 3 table)
-  pool.query("SELECT * FROM proposed_services", (error, results) => {
+const getRequestedUser = (request, response) => { //7TODO: Creation des routes pour les request (ici requested pour un pro jointure sur 3 table)
+  pool.query("SELECT * FROM requested_services WHERE id_user = $1", [request.params.id], (error, results) => {
     if (error) {
-      response.status(400).send("Couldn't get the proposed_services");
+      response.status(400).send("Couldn't get the requested_services LOL");
       return;
     }
-    if (typeof results !== "undefined" && results.rows.length > 0) {
-      response.status(200).json(results.rows);
-    } else {
-      response.status(400).send("Couldn't get the proposed_services");
-      return;
-    }
+    response.status(200).json(results.rows);
+    return
   });
 };
-const getProposedById = (request, response) => {
-  const id = parseInt(request.params.id);
 
-  pool.query("SELECT * FROM proposed_services WHERE id = $1", [id], (error, results) => {
-    
-    if (error || results.rows.length <= 0) {
+const getRequestedForUserExtended = (request, response) => {
+  const id = request.params.id;
+  const query = `SELECT
+          proposed_services.id as proposed_id,
+          proposed_services.name as proposed_name,
+          proposed_services.description as proposed_description,
+          proposed_services.location   as proposed_location,
+          proposed_services.price  as proposed_price,
+          proposed_services.creation_date   as proposed_creation_date,
+          proposed_services.state   as proposed_state,
+          proposed_services.rate   as proposed_rate,
+          proposed_services.option   as proposed_option,
+          proposed_services.id_pro   as proposed_id_pro,
+          requested_services.id as requested_id,
+          requested_services.state as requested_state,
+          requested_services.paid as requested_paid,
+          requested_services.creation_date as requested_creation_date,
+          requested_services.address as requested_address,
+          requested_services.expiration_date as requested_expiration_date,
+          requested_services.id_user as requested_id_user,
+          requested_services.id_proposed as requested_id_proposed
+  FROM requested_services
+  INNER JOIN proposed_services
+  ON requested_services.id_proposed = proposed_services.id
+  WHERE requested.id_user = $1`
+  pool.query(query, [id], (error, results) => {
+
+    if (error) {
       response.status(400).send(`There is no proposed service with the ID: ${id}`);
       return;
     }
@@ -27,31 +46,55 @@ const getProposedById = (request, response) => {
     return;
   });
 };
-const getProProposed = (request, response) => {
-  const id_pro = request.params.id_pro
-  //parseInt(request.params.id);
 
-  pool.query("SELECT * FROM proposed_services WHERE id_pro = $1", [id_pro], (error, results) => {
-    
-    if (error || results.rows.length <= 0) {
-      response.status(400).send(`There is no proposed service with the ID: ${id_pro}`);
+
+const getRequestedPro = (request, response) => {
+  const id = request.params.id;
+  const query = `SELECT
+          proposed_services.id as proposed_id,
+          proposed_services.name as proposed_name,
+          proposed_services.description as proposed_description,
+          proposed_services.location   as proposed_location,
+          proposed_services.price  as proposed_price,
+          proposed_services.creation_date   as proposed_creation_date,
+          proposed_services.state   as proposed_state,
+          proposed_services.rate   as proposed_rate,
+          proposed_services.option   as proposed_option,
+          proposed_services.id_pro   as proposed_id_pro,
+          requested_services.id as requested_id,
+          requested_services.state as requested_state,
+          requested_services.paid as requested_paid,
+          requested_services.creation_date as requested_creation_date,
+          requested_services.address as requested_address,
+          requested_services.expiration_date as requested_expiration_date,
+          requested_services.id_user as requested_id_user,
+          requested_services.id_proposed as requested_id_proposed
+  FROM requested_services
+  INNER JOIN proposed_services
+  ON requested_services.id_proposed = proposed_services.id
+  WHERE proposed_services.id_pro = $1`
+  pool.query(query, [id], (error, results) => {
+
+    if (error) {
+      response.status(400).send(`There is no proposed service with the ID: ${id}`);
       return;
     }
     response.status(200).json(results.rows);
     return;
   });
 };
+
 const updateRequestedStateForPro = (request, response) => {
   const state = request.body.state
   const id = request.params.id
-  pool.query("UPDATE requested_services SET state = $1 WHERE id = $2", [state,id], (error, results) => {
+  pool.query("UPDATE requested_services SET state = $1 WHERE id = $2", [state, id], (error, results) => {
     if (error) {
       response.status(400).send(`Couldn't update the requested_service`)
     }
     response.status(200).send(`Status updated for the requested service  with id: ${id}.`);
     return
-  })
-}
+  });
+};
 
 const updatePaid = (req, res) => {
   const id = req.params.id
@@ -65,8 +108,8 @@ const updatePaid = (req, res) => {
     res.status(200).send(`Updated the requested paid field with the id: ${id}.`);
     return
   })
-
 }
+
 const createRequested = (request, response) => {
   const {
     address,
@@ -77,9 +120,9 @@ const createRequested = (request, response) => {
   pool.query(
     "INSERT INTO requested_services VALUES (DEFAULT, 'Pending', '0', now() , $1, now() + INTERVAL '1 DAYS',$2, $3) returning id",
     [
-        address,
-        id_user,
-        id_proposed
+      address,
+      id_user,
+      id_proposed
     ],
     (error, results) => {
       if (error) {
@@ -113,8 +156,11 @@ const deleteRequested = (request, response) => {
 };
 
 module.exports = {
-    createRequested,
-    updateRequestedStateForPro,
-    updatePaid,
-    deleteRequested,
+  createRequested,
+  updateRequestedStateForPro,
+  updatePaid,
+  deleteRequested,
+  getRequestedUser,
+  getRequestedPro,
+  getRequestedForUserExtended,
 };

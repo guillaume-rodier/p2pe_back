@@ -64,6 +64,11 @@ app.post("/requested_services/", Crypt.verifyToken, requested_services.createReq
 app.put("/requested_services/:id/state", Crypt.verifyToken, requested_services.updateRequestedStateForPro)
 app.put("/requested_services/:id/paid", Crypt.verifyToken, requested_services.updatePaid)
 app.delete("/requested_services/:id", Crypt.verifyToken, requested_services.deleteRequested)
+app.get("/users/:id/requested_services", Crypt.verifyToken, requested_services.getRequestedUser)
+app.get("/pro/:id/requested_services", Crypt.verifyToken, requested_services.getRequestedPro)
+app.get("/users/:id/requested_services", Crypt.verifyToken, requested_services.getRequestedForUserExtended)
+
+
 
 
 

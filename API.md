@@ -10,9 +10,8 @@ get\
 
 __Create new user__
 
-post \
-users \
-
+post\
+/users\
 body: {
   email \
   password \
@@ -32,9 +31,10 @@ body: {
 __Update a user (still has to define what needs to be *updatable* for now email, name and password ?)__
 \
 put \
-/users/:id \		
+/users/:id
 
 __Delete the specified user__
+
 delete \
 /users/:id \	
 
@@ -75,23 +75,24 @@ price \
 
 __Deletes the specified proposed service__
 
-delete \
-/proposed_services/:id \		
+delete\
+/proposed_services/:id\		
 
 
 __Get the specified proposed service__
 
-/proposed_services/:id__ \
+/proposed_services/:id__\
  
 
-##PRO:
+## PRO:
 __Get all the proposed services of the specified pro__
-get  \
-/pro/:id_pro/proposed_services	\
+get\
+
+/pro/:id_pro/proposed_services\
 
 __Update the state for every services proposed by a specific Pro__
 put \
-/pro/:id_pro/proposed_services/state	\
+/pro/:id_pro/proposed_services/state\
 
 
 
@@ -101,12 +102,12 @@ POST : \
 /requested_services \
  
 body : \
-{ 
-address, \
+{
+address,\
 id_user, \
 id_proposed \
 }
-__Update state  requested :__
+__Update state requested :__
 
 requested_services/:id/state \
 PUT \

@@ -14,6 +14,7 @@ const getProRequested = (request, response) => { //7TODO: Creation des routes po
     }
   });
 };
+
 const getProposedById = (request, response) => {
   const id = parseInt(request.params.id);
 
@@ -27,6 +28,7 @@ const getProposedById = (request, response) => {
     return;
   });
 };
+
 const getProProposed = (request, response) => {
   const id_pro = request.params.id_pro
   //parseInt(request.params.id);
@@ -41,6 +43,7 @@ const getProProposed = (request, response) => {
     return;
   });
 };
+
 const updateRequestedStateForPro = (request, response) => {
   const state = request.body.state
   const id = request.params.id
@@ -67,6 +70,7 @@ const updatePaid = (req, res) => {
   })
 
 }
+
 const createRequested = (request, response) => {
   const {
     address,
@@ -111,6 +115,20 @@ const deleteRequested = (request, response) => {
     return
   });
 };
+
+const getRequestedPro = (request, response) => {
+  const proId = request.params.id;
+  const text = "SELECT * FROM requested_services WHERE requested_services.id_proposed IN"
+    + "(SELECT proposed_services.id FROM proposed_services WHERE proposed_services.id_pro = $1)";
+  pool.query(text, proId, (error, results) => {
+    if (error) {
+      console.log(error)
+      response.status(400).send(`Couldn't get requested_services for ${proId}`);
+      return
+    }
+    response.status(200).send(results.rows);
+  })
+}
 
 module.exports = {
     createRequested,

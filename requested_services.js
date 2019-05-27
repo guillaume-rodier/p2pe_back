@@ -3,13 +3,14 @@ const pool = require("./db").pool;
 const getRequestedUser = (request, response) => { //7TODO: Creation des routes pour les request (ici requested pour un pro jointure sur 3 table)
   pool.query("SELECT * FROM requested_services WHERE id_user = $1", [request.params.id], (error, results) => {
     if (error) {
-      response.status(400).send("Couldn't get the requested_services LOL");
+      response.status(400).send("Couldn't get the requested_services");
       return;
     }
     response.status(200).json(results.rows);
     return
   });
 };
+
 
 const getRequestedForUserExtended = (request, response) => {
   const id = request.params.id;
@@ -35,17 +36,19 @@ const getRequestedForUserExtended = (request, response) => {
   FROM requested_services
   INNER JOIN proposed_services
   ON requested_services.id_proposed = proposed_services.id
-  WHERE requested.id_user = $1`
+  WHERE requested_services.id_user = $1`
   pool.query(query, [id], (error, results) => {
 
     if (error) {
-      response.status(400).send(`There is no proposed service with the ID: ${id}`);
+      console.log(error)
+      response.status(400).send(`Error while requesting the data`);
       return;
     }
     response.status(200).json(results.rows);
     return;
   });
 };
+
 
 
 const getRequestedPro = (request, response) => {
@@ -155,6 +158,20 @@ const deleteRequested = (request, response) => {
   });
 };
 
+const getRequestedProWithoutDetails = (request, response) => {
+  const proId = request.params.id;
+  const text = "SELECT * FROM requested_services WHERE requested_services.id_proposed IN"
+    + "(SELECT proposed_services.id FROM proposed_services WHERE proposed_services.id_pro = $1)";
+  pool.query(text, [proId], (error, results) => {
+    if (error) {
+      console.log(error)
+      response.status(400).send(`Couldn't get requested_services for ${proId}`);
+      return
+    }
+    response.status(200).send(results.rows);
+  })
+}
+
 module.exports = {
   createRequested,
   updateRequestedStateForPro,
@@ -163,4 +180,5 @@ module.exports = {
   getRequestedUser,
   getRequestedPro,
   getRequestedForUserExtended,
+  getRequestedProWithoutDetails,
 };

@@ -132,5 +132,5 @@ __GET POUR PRO :__
 
 __GET requested_services__
 \
-/users/:id/requested_services/extend\
+/users/:id/requested_services/extend \
 /users/:id/requested_services

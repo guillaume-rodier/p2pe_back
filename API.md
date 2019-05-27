@@ -10,9 +10,9 @@ get\
 
 __Create new user__
 
-post \   
-users	\	
-body: { \
+post \
+users \	
+body: {
   email \
   password \
   gender \

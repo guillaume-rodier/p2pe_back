@@ -64,6 +64,11 @@ node index.js (You can also use nodemon in order to use the hot reload)
  
 Run docker-compose up in the P2PE_Back folder.
 
+pour lancer le docker compose: 
+ - verifier que   host: 'postgres' dans le fichier db.js
+ - veillez a supprimer le dossier node_module avant de lancer le docker
+ - docker compose up  
+
 Check the host value in config.js and set it to 'postgres', if necessary.
 
 Incoming:

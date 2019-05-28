@@ -16,9 +16,9 @@ services:
     image: node:latest
     working_dir: /usr/src/app/P2PE
     ports:
-      - "3000:3000"
+      - "3001:3001"
     expose:
-      - "3000"
+      - "3001"
     links:
       - "postgres:postgres"
     depends_on:

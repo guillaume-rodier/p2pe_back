@@ -125,6 +125,6 @@ app.get("/protected", Crypt.verifyToken, (req, res) => {
   return res.status(200).send("YAY! this is a protected Route")
 })
 
-app.listen(3000, () => {
+app.listen(3001, () => {
   console.log(`App running on port ${port}.`);
 });

@@ -14,3 +14,7 @@ module.exports = new JwtStrategy(opts, (jwt_payload, done) => {
     }
     return done(null, false)
 })  
+
+/* const getUser = function(email, password) {
+
+} */

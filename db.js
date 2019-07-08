@@ -33,7 +33,7 @@ const createTables = async () => {
   })
  }
 
-
+ 
 const dropTables = () => {
   pool.query('DROP TABLE IF EXISTS users', (error, results) => {
     if (error) {

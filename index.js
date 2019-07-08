@@ -9,7 +9,7 @@ const proposed_services = require('./proposed_services')
 const requested_services = require('./requested_services')
 const app = express()
 const cors = require("cors");
-const port = 3000
+const port = 3001
 
 
 //Database init
@@ -79,10 +79,10 @@ app.get("/pro/:id/requested_services/", Crypt.verifyToken, requested_services.ge
 app.post("/login", (request, response) => {
     //Test if data are conform
     if (!request.body.email || !request.body.password) {
-      return response.status(400).json({message: "Some values are missing"});
+      return response.status(400).json({message: "Certaines valeurs sont manquantes"});
     }
     if (!Crypt.isValidEmail(request.body.email)) {
-      return response.status(400).json({message: "The credentials you provided is incorrect: Please enter a valid email address"});
+      return response.status(400).json({message: "Les informations fournit sont incorrect: Entrer une addresse email valide"});
       }
 
     //Find account linked to this email
@@ -92,7 +92,7 @@ app.post("/login", (request, response) => {
         .then((res) => {
             const current_user = res.rows[0];
             if(!Crypt.comparePassword(current_user.password, request.body.password)) {
-              return response.status(400).json({message: "The credentials you provided is incorrect: password incorrect"});
+              return response.status(400).json({message: "Mauvais mot de passe"});
             } else {
               //console.log(process.env.SECRET);
               const token = Crypt.generateToken(current_user.id, current_user.email, current_user.role);
@@ -105,7 +105,7 @@ app.post("/login", (request, response) => {
         })
         //Email does not match
         .catch((err) => {
-            return response.status(400).json({message: "This email does not refer to any account"});
+            return response.status(400).json({message: "Cet email ne correspond à aucun compte"});
         });
 });
 
@@ -127,5 +127,5 @@ app.get("/protected", Crypt.verifyToken, (req, res) => {
 })
 
 app.listen(3001, () => {
-  console.log(`App running on port ${port}.`);
+  console.log(`App running on port 3001.`);
 });

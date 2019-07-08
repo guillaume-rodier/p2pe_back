@@ -3,7 +3,7 @@ const pool = require("./db").pool;
 const getRequestedUser = (request, response) => { //7TODO: Creation des routes pour les request (ici requested pour un pro jointure sur 3 table)
   pool.query("SELECT * FROM requested_services WHERE id_user = $1", [request.params.id], (error, results) => {
     if (error) {
-      response.status(400).send("Couldn't get the requested_services");
+      response.status(400).send("Ne peut pas récuperer le service requété");
       return;
     }
     response.status(200).json(results.rows);
@@ -79,7 +79,7 @@ const getRequestedPro = (request, response) => {
   pool.query(query, [id], (error, results) => {
 
     if (error) {
-      response.status(400).send(`There is no proposed service with the ID: ${id}`);
+      response.status(400).send(`N existe pas pour ID: ${id}`);
       return;
     }
     response.status(200).json(results.rows);
@@ -92,9 +92,9 @@ const updateRequestedStateForPro = (request, response) => {
   const id = request.params.id
   pool.query("UPDATE requested_services SET state = $1 WHERE id = $2", [state, id], (error, results) => {
     if (error) {
-      response.status(400).send(`Couldn't update the requested_service`)
+      response.status(400).send(`Ne peut pas mettre a jour le service`)
     }
-    response.status(200).send(`Status updated for the requested service  with id: ${id}.`);
+    response.status(200).send(`Ne peut pas mettre à jour le status du service id: ${id}.`);
     return
   });
 };
@@ -104,11 +104,11 @@ const updatePaid = (req, res) => {
   const paid = req.body.paid
   pool.query("UPDATE requested_services SET paid = $1 WHERE id = $2", [paid, id], (error, results) => {
     if (error) {
-      res.status(400).send(`Couldn't update the requested service`)
+      res.status(400).send(`Ne peux pas mettre a jour la state du service`)
       console.log(error)
       return
     }
-    res.status(200).send(`Updated the requested paid field with the id: ${id}.`);
+    res.status(200).send(`Etat mise à jour`);
     return
   })
 }
@@ -134,11 +134,11 @@ const createRequested = (request, response) => {
         response
           .status(400)
           .send(
-            `Could not create the request for that service with the provided data`
+            `Ne peux pas créer le service`
           );
         return;
       }
-      response.status(201).send(`Created the new request: ${results.rows[0].id}`);
+      response.status(201).send(`Service Créer: ${results.rows[0].id}`);
       return;
     }
   );
@@ -150,10 +150,10 @@ const deleteRequested = (request, response) => {
   pool.query("DELETE from requested_services WHERE id = $1", [id], (error, results) => {
     if (error) {
       console.log(error)
-      response.status(400).send("Couldn't delete the service");
+      response.status(400).send("Ne peux pas supprimer le service");
       return
     }
-    response.status(200).send(`Requested_services with ID: ${id} deleted`);
+    response.status(200).send(`Suppression du service ID: ${id} deleted`);
     return
   });
 };
@@ -165,7 +165,7 @@ const getRequestedProWithoutDetails = (request, response) => {
   pool.query(text, [proId], (error, results) => {
     if (error) {
       console.log(error)
-      response.status(400).send(`Couldn't get requested_services for ${proId}`);
+      response.status(400).send(`Ne peux pas récuperer le service pour le pro: ${proId}`);
       return
     }
     response.status(200).send(results.rows);

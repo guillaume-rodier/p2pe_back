@@ -1,0 +1,62 @@
+INSERT INTO users (
+  "email",
+  "password",
+  "gender",
+  "address",
+  "phone_number",
+  "first_name",
+  "last_name",
+  "role",
+  "company_name",
+  "company_description",
+  "number_employee",
+  "siret",
+  "state",
+  "profession"
+) VALUES (
+  'toto@email.com',
+  '$2y$10$JrzYOYKvO7m2HnILLfphFex15qh77Aifj/OiIUklDo8IMjzyOhvDy',--Azerty
+  'male',
+  '1 rue pasteur',
+  '0677665544',
+  'fist_test1',
+  'second_test1',
+  'roleUser',
+  'company1',
+  'The description of company',
+  '1234',
+  '1212121212',
+  'state',
+  'Informatique'
+);
+
+INSERT INTO "users" (
+  "email",
+  "password",
+  "gender",
+  "address",
+  "phone_number",
+  "first_name",
+  "last_name",
+  "role",
+  "company_name",
+  "company_description",
+  "number_employee",
+  "siret",
+  "state",
+  "profession"
+) VALUES (
+  'resrtes@email.com',
+  '$2y$10$JrzYOYKvO7m2HnILLfphFex15qh77Aifj/OiIUklDo8IMjzyOhvDy',
+  'male',
+  '123, rue de la rue',
+  '0677552217',
+  'fist_test2',
+  'second_test2',
+  'rolePro',
+  'Epitech',
+  'The description of Epitech',
+  '55',
+  '1526355',
+  'state',
+  'Informatique');

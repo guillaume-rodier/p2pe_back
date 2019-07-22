@@ -18,7 +18,7 @@ const getProposedById = (request, response) => {
   const id = parseInt(request.params.id);
 
   pool.query("SELECT * FROM proposed_services WHERE id = $1", [id], (error, results) => {
-    
+
     if (error || results.rows.length <= 0) {
       response.status(400).send(`There is no proposed service with the ID: ${id}`);
       return;
@@ -32,7 +32,7 @@ const getProProposed = (request, response) => {
   //parseInt(request.params.id);
 
   pool.query("SELECT * FROM proposed_services WHERE id_pro = $1", [id_pro], (error, results) => {
-    
+
     if (error || results.rows.length <= 0) {
       response.status(400).send(`There is no proposed service with the ID: ${id_pro}`);
       return;
@@ -73,8 +73,9 @@ const updateProposedWithId = (req, res) => {
   const name = req.body.name
   const description =  req.body.description
   const price = parseFloat(req.body.price)
+  const location = (req.body.location);
 
-  pool.query("UPDATE proposed_services SET name = $1, description = $2, price = $3 WHERE id = $4", [name,description, price, id], (error, results) => {
+  pool.query("UPDATE proposed_services SET name = $1, description = $2, price = $3, location = $4 WHERE id = $5", [name, description, price, location, id], (error, results) => {
     if (error) {
       res.status(400).send(`Something went wrong`)
     }

@@ -1,4 +1,6 @@
 const pool = require("./db").pool;
+var NodeGeocoder = require('node-geocoder');
+
 
 const getRequestedUser = (request, response) => { //7TODO: Creation des routes pour les request (ici requested pour un pro jointure sur 3 table)
   pool.query("SELECT * FROM requested_services WHERE id_user = $1", [request.params.id], (error, results) => {
@@ -113,6 +115,15 @@ const updatePaid = (req, res) => {
   })
 }
 
+  var options = {
+    provider: 'mapquest',
+    // Optional depending on the providers
+    httpAdapter: 'https', // Default
+    apiKey: 'DrnJ5ZheciHO8GBpM5Hhq6qVnCe3u1wU',
+    //'AIzaSyC9Yndud4rY1zKIKp0M08h9hmVZ2EXhtJI', // for Mapquest, OpenCage, Google Premier
+    formatter: null         // 'gpx', 'string', ...
+  };
+
 const createRequested = (request, response) => {
   //TODO: Modifier bdd
   //use long, late as json object in postgres
@@ -123,16 +134,6 @@ const createRequested = (request, response) => {
     id_proposed
   } = request.body;
 
-  var NodeGeocoder = require('node-geocoder');
-
-  var options = {
-    provider: 'mapquest',
-    // Optional depending on the providers
-    httpAdapter: 'https', // Default
-    apiKey: 'DrnJ5ZheciHO8GBpM5Hhq6qVnCe3u1wU',
-    //'AIzaSyC9Yndud4rY1zKIKp0M08h9hmVZ2EXhtJI', // for Mapquest, OpenCage, Google Premier
-    formatter: null         // 'gpx', 'string', ...
-  };
 
   var geocoder = NodeGeocoder(options);
 

@@ -3,7 +3,7 @@ const pool = require("./db").pool;
 const getRequestedUser = (request, response) => { //7TODO: Creation des routes pour les request (ici requested pour un pro jointure sur 3 table)
   pool.query("SELECT * FROM requested_services WHERE id_user = $1", [request.params.id], (error, results) => {
     if (error) {
-      response.status(400).send("Ne peut pas récuperer le service requété");
+      response.status(400).send("Ne peut pas récuperer le service requêté");
       return;
     }
     response.status(200).json(results.rows);
@@ -114,35 +114,78 @@ const updatePaid = (req, res) => {
 }
 
 const createRequested = (request, response) => {
+  //TODO: Modifier bdd
+  //use long, late as json object in postgres
+  //use formated address insread of address
   const {
     address,
     id_user,
     id_proposed
   } = request.body;
 
-  pool.query(
-    "INSERT INTO requested_services VALUES (DEFAULT, 'Pending', '0', now() , $1, now() + INTERVAL '1 DAYS',$2, $3) returning id",
-    [
-      address,
-      id_user,
-      id_proposed
-    ],
-    (error, results) => {
-      if (error) {
-        console.log(error);
+  var NodeGeocoder = require('node-geocoder');
 
-        response
-          .status(400)
-          .send(
-            `Ne peux pas créer le service`
-          );
-        return;
-      }
-      response.status(201).send(`Service Créer: ${results.rows[0].id}`);
+  var options = {
+    provider: 'mapquest',
+    // Optional depending on the providers
+    httpAdapter: 'https', // Default
+    apiKey: 'DrnJ5ZheciHO8GBpM5Hhq6qVnCe3u1wU',
+    //'AIzaSyC9Yndud4rY1zKIKp0M08h9hmVZ2EXhtJI', // for Mapquest, OpenCage, Google Premier
+    formatter: null         // 'gpx', 'string', ...
+  };
+
+  var geocoder = NodeGeocoder(options);
+
+  // Using callback
+
+  //country: 'France', zipcode: '93200'
+  geocoder.geocode({ address: address }, function (err, res) {
+    if (typeof res !== 'undifined' && res.length > 0) {
+      var formated = res[0].formattedAddress;
+      var longitude = res[0].longitude
+      var latitude = res[0].latitude
+      var geos = JSON.stringify({ longitude, latitude });
+    } else {
+      response
+        .status(400)
+        .send(
+          `Ne peux pas créer le service car l'adresse fournie n'est pas valide`
+        );
       return;
     }
-  );
-};
+
+    if (formated.length < 0) {
+      formated = address
+      geos = JSON.stringify({})
+    }
+    console.log(res)
+
+    pool.query(
+      "INSERT INTO requested_services VALUES (DEFAULT, 'Pending', '0', now() , $1, now() + INTERVAL '1 DAYS',$2, $3, $4) returning id",
+      [
+        address,
+        id_user,
+        id_proposed,
+        geos
+      ],
+      (error, results) => {
+        if (error) {
+          console.log(error);
+          response
+            .status(400)
+            .send(
+              `Ne peux pas créer le service`
+            );
+          return;
+        }
+        response.status(201).send(`Service Créer: ${results.rows[0].id}`);
+        return;
+      }
+    );
+
+  });
+}
+
 
 const deleteRequested = (request, response) => {
   const id = request.params.id;

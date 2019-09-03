@@ -10,11 +10,37 @@ const requested_services = require('./requested_services')
 const app = express()
 const cors = require("cors");
 const port = 3001
+/* 
+var NodeGeocoder = require('node-geocoder');
+ 
+var options = {
+provider: 'mapquest',
+// Optional depending on the providers
+httpAdapter: 'https', // Default
+apiKey: 'DrnJ5ZheciHO8GBpM5Hhq6qVnCe3u1wU', 
+//'AIzaSyC9Yndud4rY1zKIKp0M08h9hmVZ2EXhtJI', // for Mapquest, OpenCage, Google Premier
+formatter: null         // 'gpx', 'string', ...
+};
+
+var geocoder = NodeGeocoder(options);
+
+// Using callback
+geocoder.geocode({address:'24 rue de lorraine' ,country: 'France', zipcode: '93200'}, function(err, res) {
+console.log('///////////////',res);
+});
+
+// Or using Promise
+geocoder.geocode('29 champs elysée paris')
+  .then(function(res) {
+    console.log(res);
+  })
+  .catch(function(err) {
+    console.log(err);
+  }); */
 
 
 //Database init
-
-pool.query("SELECT NOW()", (err, res) => {
+ pool.query("SELECT NOW()", (err, res) => {
   if (err) {
     console.log("Could not connect to the database");
     pool.end()
@@ -60,7 +86,9 @@ app.put("/pro/:id_pro/proposed_services/state", Crypt.verifyToken, proposed_serv
 
 
 //REQUESTED SERVICES
-app.post("/requested_services/", Crypt.verifyToken, requested_services.createRequested)//same but for all services with pro id
+app.post("/requested_services/", 
+//Crypt.verifyToken,
+requested_services.createRequested)//same but for all services with pro id
 app.put("/requested_services/:id/state", Crypt.verifyToken, requested_services.updateRequestedStateForPro)
 app.put("/requested_services/:id/paid", Crypt.verifyToken, requested_services.updatePaid)
 app.delete("/requested_services/:id", Crypt.verifyToken, requested_services.deleteRequested)
@@ -79,10 +107,10 @@ app.get("/pro/:id/requested_services/", Crypt.verifyToken, requested_services.ge
 app.post("/login", (request, response) => {
     //Test if data are conform
     if (!request.body.email || !request.body.password) {
-      return response.status(400).json({message: "Certaines valeurs sont manquantes"});
+      return response.status(400).json({message: "Valeurs manquantes"});
     }
     if (!Crypt.isValidEmail(request.body.email)) {
-      return response.status(400).json({message: "Les informations fournit sont incorrect: Entrer une addresse email valide"});
+      return response.status(400).json({message: "Les informations fournies sont incorrectes: Entrer une addresse mail valide"});
       }
 
     //Find account linked to this email

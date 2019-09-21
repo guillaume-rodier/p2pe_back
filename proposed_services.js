@@ -85,28 +85,31 @@ const updateProposedWithId = (req, res) => {
 }
 const createProposed = (request, response) => {
   const {
-    name,
+    title,
     description,
     location,
-    price,
+    prix,
     creation_date, //now()
     state, //1 at creation
     rate, //0 at init
-    option,
+    options,
     id_pro
   } = request.body;
 
   pool.query(
     "INSERT INTO proposed_services VALUES (DEFAULT, $1, $2, $3, $4, now(), '1', 0.0, $5 ,$6) returning id",
     [
-      name,
+      title,
       description,
       location,
-      price,
-      option,
+      prix,
+      options,
       id_pro
     ],
     (error, results) => {
+      console.log("option");
+      console.log(request.body);
+
       if (error) {
         console.log(error);
 

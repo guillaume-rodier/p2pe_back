@@ -4,7 +4,7 @@ const Crypt = require ('./strategies/Crypt');
 const getUsers = (request, response) => {
   pool.query("SELECT * FROM users", (error, results) => {
     if (error) {
-      response.status(400).send("Couldn t get the users");
+      response.status(400).send("Ne peux pas récuprer l'utilisateur");
       return;
     }
     if (typeof results !== "undefined" && results.rows.length > 0) {
@@ -18,7 +18,7 @@ const getUserById = (request, response) => {
 
   pool.query("SELECT * FROM users WHERE id = $1", [id], (error, results) => {
     if (error || results.rows.length <= 0) {
-      response.status(400).send(`There is no user with the ID: ${id}`);
+      response.status(400).send(`Il n y a pas d'utilisateur avec l'ID: ${id}`);
       return;
     }
     response.status(200).json(results.rows);
@@ -62,7 +62,7 @@ const createUser = (request, response) => {
 
  
   if (!Crypt.isValidEmail(email)) {
-    return response.status(400).send({ 'message': 'Please enter a valid email address' });
+    return response.status(400).send({ 'message': 'entrer une email valide' });
   }
   const hashPassword = Crypt.hashPassword(password);
 
@@ -87,11 +87,11 @@ const createUser = (request, response) => {
         response
           .status(400)
           .send(
-            `Could not create the user with the provided data: ${error.detail}`
+            `Ne peux pas créer l'utilisateur avec la donnée recue: ${error.detail}`
           );
         return;
       }
-      response.status(201).send(`User added with ID: ${results.rows[0].id}`);
+      response.status(201).send(`Utilisateur crée ID: ${results.rows[0].id}`);
       return;
     }
   );
@@ -107,10 +107,10 @@ const updateUser = (request, response) => {
     [name, email, id],
     (error, results) => {
       if (error) {
-        response.status(400).send(`Couldn't update the user with ID: ${id}`);
+        response.status(400).send(`Ne peux pas mettre a jour l'utilisateur: ${id}`);
         return;
       }
-      response.status(200).send(`User updated with ID: ${id}`);
+      response.status(200).send(`utilisateur mis à jour ID: ${id}`);
       return;
     }
   );
@@ -121,9 +121,9 @@ const deleteUser = (request, response) => {
 
   pool.query("DELETE FROM users WHERE id = $1", [id], (error, results) => {
     if (error) {
-      response.status(400).send("Couldn't delete the user");
+      response.status(400).send("Ne peux pas supprimer l'utilisateur");
     }
-    response.status(200).send(`Deleted User with ID: ${id}`);
+    response.status(200).send(`Utilisateur supprimé ID: ${id}`);
     return
   });
 };

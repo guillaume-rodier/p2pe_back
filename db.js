@@ -22,7 +22,7 @@ const createTables = async () => {
         }
       console.log('table proposed_services created')
 
-    pool.query('CREATE TABLE IF NOT EXISTS requested_services (id SERIAL, state VARCHAR, paid VARCHAR, creation_date timestamp, address VARCHAR, expiration_date timestamp, id_user SERIAL, id_proposed SERIAL, PRIMARY KEY (id), FOREIGN KEY (id_user) REFERENCES users(id), FOREIGN KEY (id_proposed) REFERENCES proposed_services(id))', (error, results) => {
+    pool.query('CREATE TABLE IF NOT EXISTS requested_services (id SERIAL, geos json NOT NULL, state VARCHAR, paid VARCHAR, creation_date timestamp, address VARCHAR, expiration_date timestamp, id_user SERIAL, id_proposed SERIAL,  PRIMARY KEY (id), FOREIGN KEY (id_user) REFERENCES users(id), FOREIGN KEY (id_proposed) REFERENCES proposed_services(id))', (error, results) => {
       if (error) {
         console.log('Cannot create tables requested_services : ' + error.message, results) 
         return   
@@ -33,7 +33,7 @@ const createTables = async () => {
   })
  }
 
-
+ 
 const dropTables = () => {
   pool.query('DROP TABLE IF EXISTS users', (error, results) => {
     if (error) {

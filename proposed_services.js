@@ -3,13 +3,13 @@ const pool = require("./db").pool
 const getAllProposed = (request, response) => {
   pool.query("SELECT * FROM proposed_services where state = '1'", (error, results) => {
     if (error) {
-      response.status(400).send("Couldn't get the proposed_services");
+      response.status(400).send("Ne peut pas récupérer les services proposés");
       return;
     }
     if (typeof results !== "undefined") {
       response.status(200).json(results.rows);
     } else {
-      response.status(400).send("Couldn't get the proposed_services");
+      response.status(400).send("Ne peut pas récupérer les services proposés");
       return;
     }
   });
@@ -20,7 +20,7 @@ const getProposedById = (request, response) => {
   pool.query("SELECT * FROM proposed_services WHERE id = $1", [id], (error, results) => {
     
     if (error || results.rows.length <= 0) {
-      response.status(400).send(`There is no proposed service with the ID: ${id}`);
+      response.status(400).send(`Il n'y a pas de service proposé avec cet ID: ${id}`);
       return;
     }
     response.status(200).json(results.rows);
@@ -34,7 +34,7 @@ const getProProposed = (request, response) => {
   pool.query("SELECT * FROM proposed_services WHERE id_pro = $1", [id_pro], (error, results) => {
     
     if (error || results.rows.length <= 0) {
-      response.status(400).send(`There is no proposed service with the ID: ${id_pro}`);
+      response.status(400).send(`Il n'y a pas de service proposé pour le pro avec ID: ${id_pro}`);
       return;
     }
     response.status(200).json(results.rows);
@@ -49,9 +49,9 @@ const updateProposedState = (request, response) => {
 
   pool.query("UPDATE proposed_services SET state = $1 WHERE id = $2", [state,id], (error, results) => {
     if (error) {
-      response.status(400).send(`Something went wrong`)
+      response.status(400).send(`Le client a spécifié un argument incorrect.`)
     }
-    response.status(200).send(`Status updated for the proposed service with id: ${id}`);
+    response.status(200).send(`Status mise à jour  pour le service avec l'id: ${id}`);
     return
   })
 }
@@ -61,9 +61,9 @@ const updateProposedStatePro = (request, response) => {
   const id_pro = parseInt(request.params.id_pro)
   pool.query("UPDATE proposed_services SET state = $1 WHERE id_pro = $2", [state,id_pro], (error, results) => {
     if (error) {
-      response.status(400).send(`Something went wrong`)
+      response.status(400).send(`Le client a spécifié un argument incorrect.`)      
     }
-    response.status(200).send(`Status updated for the proposed service of the pro with id: ${id_pro}.`);
+    response.status(200).send(`Status a jour pour le service proposé id: ${id_pro}.`);
     return
   })
 }
@@ -76,9 +76,9 @@ const updateProposedWithId = (req, res) => {
 
   pool.query("UPDATE proposed_services SET name = $1, description = $2, price = $3 WHERE id = $4", [name,description, price, id], (error, results) => {
     if (error) {
-      res.status(400).send(`Something went wrong`)
+      response.status(400).send(`Le client a spécifié un argument incorrect.`)      
     }
-    res.status(200).send(`Updated the proposed service with the id: ${id}.`);
+    res.status(200).send(`Service proposé a jour ID: ${id}.`);
     return
   })
 
@@ -113,11 +113,11 @@ const createProposed = (request, response) => {
         response
           .status(400)
           .send(
-            `Could not create the service proposal with the provided data`
+            `Ne peux pas créer le service avec la donnée envoyée`
           );
         return;
       }
-      response.status(201).send(`Created the new service: ${results.rows[0].id}`);
+      response.status(201).send(`Service créer avec l'id: ${results.rows[0].id}`);
       return;
     }
   );
@@ -128,9 +128,9 @@ const deleteProposed = (request, response) => {
 
   pool.query("DELETE FROM proposed_services WHERE id = $1", [id], (error, results) => {
     if (error) {
-      response.status(400).send("Couldn't delete the service");
+      response.status(400).send("Ne peut pas supprimer le service");
     }
-    response.status(200).send(`Proposed Service deleted with ID: ${id}`);
+    response.status(200).send(`Service supprimé: ${id}`);
   });
 };
 

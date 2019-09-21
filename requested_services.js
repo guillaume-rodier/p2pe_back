@@ -16,29 +16,30 @@ const getRequestedUser = (request, response) => { //7TODO: Creation des routes p
 
 const getRequestedForUserExtended = (request, response) => {
   const id = request.params.id;
-  const query = `SELECT
-          proposed_services.id as proposed_id,
-          proposed_services.name as proposed_name,
-          proposed_services.description as proposed_description,
-          proposed_services.location   as proposed_location,
-          proposed_services.price  as proposed_price,
-          proposed_services.creation_date   as proposed_creation_date,
-          proposed_services.state   as proposed_state,
-          proposed_services.rate   as proposed_rate,
-          proposed_services.option   as proposed_option,
-          proposed_services.id_pro   as proposed_id_pro,
-          requested_services.id as requested_id,
-          requested_services.state as requested_state,
-          requested_services.paid as requested_paid,
-          requested_services.creation_date as requested_creation_date,
-          requested_services.address as requested_address,
-          requested_services.expiration_date as requested_expiration_date,
-          requested_services.id_user as requested_id_user,
-          requested_services.id_proposed as requested_id_proposed
-  FROM requested_services
-  INNER JOIN proposed_services
-  ON requested_services.id_proposed = proposed_services.id
-  WHERE requested_services.id_user = $1`
+    const query = `SELECT
+            proposed_services.id as proposed_id,
+            proposed_services.name as proposed_name,
+            proposed_services.description as proposed_description,
+            proposed_services.location   as proposed_location,
+            proposed_services.price  as proposed_price,
+            proposed_services.creation_date   as proposed_creation_date,
+            proposed_services.state   as proposed_state,
+            proposed_services.rate   as proposed_rate,
+            proposed_services.option   as proposed_option,
+            proposed_services.id_pro   as proposed_id_pro,
+            requested_services.id as requested_id,
+            requested_services.state as requested_state,
+            requested_services.paid as requested_paid,
+            requested_services.creation_date as requested_creation_date,
+            requested_services.address as requested_address,
+            requested_services.geos as geos,
+            requested_services.expiration_date as requested_expiration_date,
+            requested_services.id_user as requested_id_user,
+            requested_services.id_proposed as requested_id_proposed
+    FROM requested_services
+    INNER JOIN proposed_services
+    ON requested_services.id_proposed = proposed_services.id
+    WHERE requested_services.id_user = $1`
   pool.query(query, [id], (error, results) => {
 
     if (error) {
@@ -143,9 +144,9 @@ const createRequested = (request, response) => {
   geocoder.geocode({ address: address }, function (err, res) {
     if (typeof res !== 'undifined' && res.length > 0) {
       var formated = res[0].formattedAddress;
-      var longitude = res[0].longitude
-      var latitude = res[0].latitude
-      var geos = JSON.stringify({ longitude, latitude });
+      var lng = res[0].longitude
+      var lat = res[0].latitude
+      var geos = JSON.stringify({ lng, lat });
     } else {
       response
         .status(400)
@@ -159,7 +160,6 @@ const createRequested = (request, response) => {
       formated = address
       geos = JSON.stringify({})
     }
-    console.log(res)
 
     pool.query(
       "INSERT INTO requested_services VALUES (DEFAULT, 'Pending', '0', now() , $1, now() + INTERVAL '1 DAYS',$2, $3, $4) returning id",

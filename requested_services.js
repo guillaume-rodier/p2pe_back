@@ -1,9 +1,11 @@
 const pool = require("./db").pool;
+var NodeGeocoder = require('node-geocoder');
+
 
 const getRequestedUser = (request, response) => { //7TODO: Creation des routes pour les request (ici requested pour un pro jointure sur 3 table)
   pool.query("SELECT * FROM requested_services WHERE id_user = $1", [request.params.id], (error, results) => {
     if (error) {
-      response.status(400).send("Couldn't get the requested_services");
+      response.status(400).send("Ne peut pas récuperer le service requêté");
       return;
     }
     response.status(200).json(results.rows);
@@ -14,29 +16,30 @@ const getRequestedUser = (request, response) => { //7TODO: Creation des routes p
 
 const getRequestedForUserExtended = (request, response) => {
   const id = request.params.id;
-  const query = `SELECT
-          proposed_services.id as proposed_id,
-          proposed_services.name as proposed_name,
-          proposed_services.description as proposed_description,
-          proposed_services.location   as proposed_location,
-          proposed_services.price  as proposed_price,
-          proposed_services.creation_date   as proposed_creation_date,
-          proposed_services.state   as proposed_state,
-          proposed_services.rate   as proposed_rate,
-          proposed_services.option   as proposed_option,
-          proposed_services.id_pro   as proposed_id_pro,
-          requested_services.id as requested_id,
-          requested_services.state as requested_state,
-          requested_services.paid as requested_paid,
-          requested_services.creation_date as requested_creation_date,
-          requested_services.address as requested_address,
-          requested_services.expiration_date as requested_expiration_date,
-          requested_services.id_user as requested_id_user,
-          requested_services.id_proposed as requested_id_proposed
-  FROM requested_services
-  INNER JOIN proposed_services
-  ON requested_services.id_proposed = proposed_services.id
-  WHERE requested_services.id_user = $1`
+    const query = `SELECT
+            proposed_services.id as proposed_id,
+            proposed_services.name as proposed_name,
+            proposed_services.description as proposed_description,
+            proposed_services.location   as proposed_location,
+            proposed_services.price  as proposed_price,
+            proposed_services.creation_date   as proposed_creation_date,
+            proposed_services.state   as proposed_state,
+            proposed_services.rate   as proposed_rate,
+            proposed_services.option   as proposed_option,
+            proposed_services.id_pro   as proposed_id_pro,
+            requested_services.id as requested_id,
+            requested_services.state as requested_state,
+            requested_services.paid as requested_paid,
+            requested_services.creation_date as requested_creation_date,
+            requested_services.address as requested_address,
+            requested_services.geos as geos,
+            requested_services.expiration_date as requested_expiration_date,
+            requested_services.id_user as requested_id_user,
+            requested_services.id_proposed as requested_id_proposed
+    FROM requested_services
+    INNER JOIN proposed_services
+    ON requested_services.id_proposed = proposed_services.id
+    WHERE requested_services.id_user = $1`
   pool.query(query, [id], (error, results) => {
 
     if (error) {
@@ -79,7 +82,7 @@ const getRequestedPro = (request, response) => {
   pool.query(query, [id], (error, results) => {
 
     if (error) {
-      response.status(400).send(`There is no proposed service with the ID: ${id}`);
+      response.status(400).send(`N existe pas pour ID: ${id}`);
       return;
     }
     response.status(200).json(results.rows);
@@ -92,9 +95,9 @@ const updateRequestedStateForPro = (request, response) => {
   const id = request.params.id
   pool.query("UPDATE requested_services SET state = $1 WHERE id = $2", [state, id], (error, results) => {
     if (error) {
-      response.status(400).send(`Couldn't update the requested_service`)
+      response.status(400).send(`Ne peut pas mettre a jour le service`)
     }
-    response.status(200).send(`Status updated for the requested service  with id: ${id}.`);
+    response.status(200).send(`Ne peut pas mettre à jour le status du service id: ${id}.`);
     return
   });
 };
@@ -104,45 +107,86 @@ const updatePaid = (req, res) => {
   const paid = req.body.paid
   pool.query("UPDATE requested_services SET paid = $1 WHERE id = $2", [paid, id], (error, results) => {
     if (error) {
-      res.status(400).send(`Couldn't update the requested service`)
+      res.status(400).send(`Ne peux pas mettre a jour la state du service`)
       console.log(error)
       return
     }
-    res.status(200).send(`Updated the requested paid field with the id: ${id}.`);
+    res.status(200).send(`Etat mise à jour`);
     return
   })
 }
 
+  var options = {
+    provider: 'mapquest',
+    // Optional depending on the providers
+    httpAdapter: 'https', // Default
+    apiKey: 'DrnJ5ZheciHO8GBpM5Hhq6qVnCe3u1wU',
+    //'AIzaSyC9Yndud4rY1zKIKp0M08h9hmVZ2EXhtJI', // for Mapquest, OpenCage, Google Premier
+    formatter: null         // 'gpx', 'string', ...
+  };
+
 const createRequested = (request, response) => {
+  //TODO: Modifier bdd
+  //use long, late as json object in postgres
+  //use formated address insread of address
   const {
     address,
     id_user,
     id_proposed
   } = request.body;
 
-  pool.query(
-    "INSERT INTO requested_services VALUES (DEFAULT, 'Pending', '0', now() , $1, now() + INTERVAL '1 DAYS',$2, $3) returning id",
-    [
-      address,
-      id_user,
-      id_proposed
-    ],
-    (error, results) => {
-      if (error) {
-        console.log(error);
 
-        response
-          .status(400)
-          .send(
-            `Could not create the request for that service with the provided data`
-          );
-        return;
-      }
-      response.status(201).send(`Created the new request: ${results.rows[0].id}`);
+  var geocoder = NodeGeocoder(options);
+
+  // Using callback
+
+  //country: 'France', zipcode: '93200'
+  geocoder.geocode({ address: address }, function (err, res) {
+    if (typeof res !== 'undifined' && res.length > 0) {
+      var formated = res[0].formattedAddress;
+      var lng = res[0].longitude
+      var lat = res[0].latitude
+      var geos = JSON.stringify({ lng, lat });
+    } else {
+      response
+        .status(400)
+        .send(
+          `Ne peux pas créer le service car l'adresse fournie n'est pas valide`
+        );
       return;
     }
-  );
-};
+
+    if (formated.length < 0) {
+      formated = address
+      geos = JSON.stringify({})
+    }
+
+    pool.query(
+      "INSERT INTO requested_services VALUES (DEFAULT, 'Pending', '0', now() , $1, now() + INTERVAL '1 DAYS',$2, $3, $4) returning id",
+      [
+        address,
+        id_user,
+        id_proposed,
+        geos
+      ],
+      (error, results) => {
+        if (error) {
+          console.log(error);
+          response
+            .status(400)
+            .send(
+              `Ne peux pas créer le service`
+            );
+          return;
+        }
+        response.status(201).send(`Service Créer: ${results.rows[0].id}`);
+        return;
+      }
+    );
+
+  });
+}
+
 
 const deleteRequested = (request, response) => {
   const id = request.params.id;
@@ -150,10 +194,10 @@ const deleteRequested = (request, response) => {
   pool.query("DELETE from requested_services WHERE id = $1", [id], (error, results) => {
     if (error) {
       console.log(error)
-      response.status(400).send("Couldn't delete the service");
+      response.status(400).send("Ne peux pas supprimer le service");
       return
     }
-    response.status(200).send(`Requested_services with ID: ${id} deleted`);
+    response.status(200).send(`Suppression du service ID: ${id} deleted`);
     return
   });
 };
@@ -165,7 +209,7 @@ const getRequestedProWithoutDetails = (request, response) => {
   pool.query(text, [proId], (error, results) => {
     if (error) {
       console.log(error)
-      response.status(400).send(`Couldn't get requested_services for ${proId}`);
+      response.status(400).send(`Ne peux pas récuperer le service pour le pro: ${proId}`);
       return
     }
     response.status(200).send(results.rows);

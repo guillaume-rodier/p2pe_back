@@ -103,7 +103,7 @@ const createProposed = (request, response) => {
       description,
       location,
       price,
-      option,
+      options,
       id_pro
     ],
     (error, results) => {

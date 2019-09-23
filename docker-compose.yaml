@@ -11,6 +11,15 @@ services:
       - the-square-network
     environment:
       -POSTGRES_PASSWORD: docker
+  
+  adminer:
+    container_name: p2pe_adminer
+    image: adminer
+    restart: always
+    ports:
+        - 8080:8080
+    networks:
+      - the-square-network
 
   express:
     image: node:latest

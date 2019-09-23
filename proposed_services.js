@@ -99,7 +99,7 @@ const createProposed = (request, response) => {
   pool.query(
     "INSERT INTO proposed_services VALUES (DEFAULT, $1, $2, $3, $4, now(), '1', 0.0, $5 ,$6) returning id",
     [
-      name,
+      title,
       description,
       location,
       price,

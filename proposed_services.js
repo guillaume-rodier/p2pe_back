@@ -85,14 +85,14 @@ const updateProposedWithId = (req, res) => {
 }
 const createProposed = (request, response) => {
   const {
-    name,
+    title,
     description,
     location,
     price,
     creation_date, //now()
     state, //1 at creation
     rate, //0 at init
-    option,
+    options,
     id_pro
   } = request.body;
 

@@ -60,7 +60,7 @@ const createUser = (request, response) => {
     profession
   } = request.body;
 
- 
+
   if (!Crypt.isValidEmail(email)) {
     return response.status(400).send({ 'message': 'entrer une email valide' });
   }
@@ -100,11 +100,12 @@ const createUser = (request, response) => {
 //TODO: Define what can be updated on a user profil
 const updateUser = (request, response) => {
   const id = parseInt(request.params.id);
-  const { name, email } = request.body;
+
+  const { email, gender, address, phone, firstName, lastName, role, companyName, description, nbEmployes, siret, profession, town, country, postal_code, image_screen } = request.body;
 
   pool.query(
-    "UPDATE users SET name = $1, email = $2 WHERE id = $3",
-    [name, email, id],
+    "UPDATE users SET email = $1, gender = $2, address = $3, phone_number = $4, first_name = $5, last_name = $6, role = $7, company_name = $8, company_description = $9, number_employee = $10, siret = $11, profession = $12, image_screen = $13 WHERE id = $14",
+    [email, gender, address, phone, firstName, lastName, role, companyName, description, nbEmployes, siret, profession, image_screen, id],
     (error, results) => {
       if (error) {
         response.status(400).send(`Ne peux pas mettre a jour l'utilisateur: ${id}`);

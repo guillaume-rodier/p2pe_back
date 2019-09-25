@@ -1,7 +1,7 @@
 version: "3"
 services:
 
-  postgres: 
+  postgres:
     image: postgres:latest
     ports:
       - 54320:5432
@@ -18,6 +18,15 @@ services:
     restart: always
     ports:
         - 8080:8080
+    networks:
+      - the-square-network
+
+  adminer:
+    container_name: p2pe_adminer
+    image: adminer
+    restart: always
+    ports:
+      - 8080:8080
     networks:
       - the-square-network
 

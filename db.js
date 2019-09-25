@@ -8,8 +8,7 @@ const pool = new Pool({
 });
 
 const createTables = async () => {
-  await pool.query(
-    "CREATE TABLE IF NOT EXISTS users (id Serial PRIMARY KEY,email VARCHAR UNIQUE, password VARCHAR,gender VARCHAR,address VARCHAR,phone_number VARCHAR UNIQUE,first_name VARCHAR,last_name VARCHAR,role VARCHAR,company_name VARCHAR,company_description VARCHAR,number_employee INTEGER,siret VARCHAR UNIQUE,state VARCHAR,profession VARCHAR)",
+  await pool.query('CREATE TABLE IF NOT EXISTS users (id Serial PRIMARY KEY,email VARCHAR UNIQUE,password VARCHAR,gender VARCHAR,address VARCHAR,phone_number VARCHAR UNIQUE,first_name VARCHAR,last_name VARCHAR,role VARCHAR,company_name VARCHAR,company_description VARCHAR,number_employee INTEGER,siret VARCHAR UNIQUE,state VARCHAR,profession VARCHAR,image_screen TEXT)',
     (error, results) => {
       if (error) {
         console.log("Cannot create tables users : " + error.message);

@@ -48,7 +48,6 @@ const getRequestedForUserExtended = (request, response) => {
       response.status(400).send(`Error while requesting the data`);
       return;
     }
-    console.log(result)
     response.status(200).json(results.rows);
     return;
   });
